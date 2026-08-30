@@ -1,127 +1,144 @@
 using UnityEngine;
-using TMPro; // ลบทิ้งได้ถ้าไม่ได้ใช้ TextMeshPro
+using System.Collections;
+using System.Collections.Generic;
 
-/// <summary>
-/// Gameplay: ผู้เล่นต้องกด Spacebar ซ้ำๆ ให้ทันภายในช่วงเวลาที่กำหนด
-/// ยิ่งเวลาผ่านไป ช่วงเวลาที่อนุญาตให้กดจะสั้นลงเรื่อยๆ (ยากขึ้น)
-/// - ถ้ากดไม่ทัน (เว้นช่วงนานเกินไป) -> แพ้
-/// - ถ้าเล่นรอดจนถึงเวลาที่กำหนด (winTime) -> ชนะ
-/// </summary>
-public class SpacebarSurvivalGame : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     [Header("Game Settings")]
-    [Tooltip("เวลาทั้งหมดที่ต้องเล่นให้รอดถึงจะชนะ (วินาที)")]
-    public float winTime = 60f;
+    [Tooltip("ค่าอั้นตดสูงสุด")]
+    public float maxGauge = 10;
+    public float gaugeNow = 0;
+    public float startGaugeIncrease = 1;
+    public float gaugeIncreaseAdjust = 0.2f;
+    public float maxGaugeIncrease = 3;
+    public float gaugeDecreaseAmount = 1;
+    public float winTime = 30;
 
-    [Tooltip("ช่วงเวลาสูงสุดระหว่างการกดตอนเริ่มเกม (วินาที) - ค่ายิ่งมาก ยิ่งง่าย")]
-    public float startAllowedInterval = 1.0f;
+    [Header("Threshold Settings")]
+    [Tooltip("ใส่เปอร์เซ็นต์ Trigger Effect เรียงจากน้อยไปมาก")]
+    public List<float> effectPercentages = new List<float>() { 20f, 40f, 60f, 80f };
 
-    [Tooltip("ช่วงเวลาสูงสุดที่กดได้ตอนยากที่สุด (วินาที) - ค่ายิ่งน้อย ยิ่งยาก")]
-    public float minAllowedInterval = 0.15f;
 
-    [Tooltip("ใช้เวลากี่วินาทีในการไต่ความยากจากง่ายสุดไปยากสุด")]
-    public float difficultyRampDuration = 60f;
+    
+    [Header("Debug / Monitoring")]
+    [SerializeField] private float timer = 0f;
+    [SerializeField] private bool gameActive = true;
+    [SerializeField] private float gaugeIncreaseNow;
+    [SerializeField] private int currentLevel = 0;
 
-    [Header("Difficulty Curve (Optional)")]
-    [Tooltip("ปรับเส้นโค้งความยาก ถ้าไม่ต้องการปรับ ปล่อย Linear ไว้ได้เลย")]
-    public AnimationCurve difficultyCurve = AnimationCurve.Linear(0, 0, 1, 1);
+    private List<float> calculatedThresholds = new List<float>();
 
-    [Header("UI (Optional - ลากมาใส่ใน Inspector หรือปล่อยว่างได้)")]
-    public TMP_Text timerText;
-    public TMP_Text statusText;
-    public UnityEngine.UI.Slider difficultySlider; // แสดงเวลาที่เหลือก่อนตาย (ถ้ามี)
-
-    [Header("Events (Optional)")]
-    public UnityEngine.Events.UnityEvent onWin;
-    public UnityEngine.Events.UnityEvent onLose;
-
-    private float elapsedTime = 0f;
-    private float timeSinceLastPress = 0f;
-    private bool gameActive = true;
-
-    void Start() 
+    private void Start()
     {
-        Debug.Log($"start time : {timeSinceLastPress}");   
+        gaugeIncreaseNow = startGaugeIncrease;
+        CalculateThresholds();
+        StartCoroutine(GaugeIncrease());
+        StartCoroutine(GaugeIncreaseAdjust());
     }
-    void Update()
+
+    private void Update()
     {
         if (!gameActive) return;
 
-        elapsedTime += Time.deltaTime;
-        timeSinceLastPress += Time.deltaTime;
+        timer += Time.deltaTime;
+        if (timer >= winTime)
+        {
+            PlayerWin();
+            return;
+        }
 
-        // คำนวณช่วงเวลาที่อนุญาตในปัจจุบัน (ลดลงเรื่อยๆ ตามเวลาที่ผ่านไป)
-        float t = Mathf.Clamp01(elapsedTime / difficultyRampDuration);
-        float curvedT = difficultyCurve.Evaluate(t);
-        float currentAllowedInterval = Mathf.Lerp(startAllowedInterval, minAllowedInterval, curvedT);
-
-        // รับ input
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log($"space press || time: {Time.time} || current allowed interval: {currentAllowedInterval}");
-            timeSinceLastPress = 0f;
+            ReleaseGauge();
         }
 
-        // เช็คแพ้: เว้นช่วงนานเกินไปโดยไม่ได้กด
-        if (timeSinceLastPress > currentAllowedInterval)
-        {  
-            Debug.Log($"lose time: {Time.time}");
-            Debug.Log($"time since last press: {timeSinceLastPress} current allowed interval :{currentAllowedInterval}");
-            LoseGame();
+        if (gaugeNow > maxGauge)
+        {
+            PlayerLose();
             return;
         }
-
-        // เช็คชนะ: เล่นรอดจนถึงเวลาที่กำหนด
-        if (elapsedTime >= winTime)
-        {
-            WinGame();
-            return;
-        }
-
-        UpdateUI(currentAllowedInterval);
     }
 
-    void UpdateUI(float currentAllowedInterval)
+    private void ReleaseGauge()
     {
-        if (timerText != null)
+        gaugeNow = Mathf.Max(0f, gaugeNow - gaugeDecreaseAmount);
+        Debug.Log($"[Release] Gauge Now: {gaugeNow}");
+    }
+    private void CheckGaugeLevel()
+    {
+        int newLevel = 0;
+
+        // วนลูปเทียบค่าจากระดับสูงสุดลงมาต่ำสุด
+        for (int i = calculatedThresholds.Count - 1; i >= 0; i--)
         {
-            timerText.text = $"เวลา: {elapsedTime:F1} / {winTime:F1}\nต้องกดภายใน: {currentAllowedInterval:F2} วิ";
+            if (gaugeNow >= calculatedThresholds[i])
+            {
+                newLevel = i + 1; 
+                break;
+            }
         }
 
-        if (difficultySlider != null)
+        if (newLevel != currentLevel)
         {
-            // แสดงว่าผู้เล่นเหลือเวลาก่อนตายกี่ % ของ interval ปัจจุบัน
-            float remainingRatio = 1f - Mathf.Clamp01(timeSinceLastPress / currentAllowedInterval);
-            difficultySlider.value = remainingRatio;
+            currentLevel = newLevel;
+            TriggerGaugeEffect(currentLevel);
         }
     }
-
-    void LoseGame()
+    private void TriggerGaugeEffect(int level)
+    {
+        switch (level)
+        {   
+            //ใส่ effect หน้าแดงตาม Percent ของ Gauge ตรงนี้ 
+            case 1: Debug.Log($"[Level 1: {effectPercentages[0]}%] หน้าเริ่มแดง"); break;
+            case 2: Debug.Log($"[Level 2: {effectPercentages[1]}%] ตัวเริ่มสั่น"); break;
+            case 3: Debug.Log($"[Level 3: {effectPercentages[2]}%] เสียงหัวใจเต้นเร็ว"); break;
+            case 4: Debug.Log($"[Level 4: {effectPercentages[3]}%] จอกะพริบแดงวิกฤต!"); break;
+            case 0: Debug.Log("[Normal] สภาวะปกติ"); break;
+            default: Debug.Log($"[Level {level}] ทำงาน!"); break;
+        }
+    }
+    IEnumerator GaugeIncrease()
+    {
+        print("start GaugeIncrease");
+        while (gameActive)
+        {
+            yield return new WaitForSeconds(1f);
+            if (!gameActive) yield break;
+            gaugeNow += gaugeIncreaseNow;
+            CheckGaugeLevel();
+            Debug.Log($"Gauge Now: {gaugeNow} | Time: {Time.time:F1}s");
+        }
+    }
+    IEnumerator GaugeIncreaseAdjust()
+    {
+        while (gameActive && gaugeIncreaseNow < maxGaugeIncrease)
+        {
+            yield return new WaitForSeconds(1f);
+            if (!gameActive) yield break;
+            gaugeIncreaseNow = Mathf.Min(gaugeIncreaseNow + gaugeIncreaseAdjust, maxGaugeIncrease);
+            Debug.Log($"Gauge Increase Rate: {gaugeIncreaseNow} | Time: {Time.time:F1}s");
+        }
+    }
+    public void PlayerWin()
     {
         gameActive = false;
-        if (statusText != null) statusText.text = "YOU LOSE!";
-        Debug.Log("Game Over - Player Lost");
-        onLose?.Invoke();
-        // TODO: แสดง UI แพ้ / เล่นเสียง / restart scene ตรงนี้
+        StopAllCoroutines();
+        // ให้ใส่ effect เวลาที่ player ชนะทั้งหมดตรงนี้
+        Debug.Log("Player Win!");
     }
-
-    void WinGame()
+    public void PlayerLose()
     {
         gameActive = false;
-        if (statusText != null) statusText.text = "YOU WIN!";
-        Debug.Log("Game Over - Player Won");
-        onWin?.Invoke();
-        // TODO: แสดง UI ชนะ / เล่นเสียง / ไปด่านถัดไป ตรงนี้
+        StopAllCoroutines();
+        // ให้ใส่ effect เวลาที่ player แพ้ทั้งหมดตรงนี้
+        Debug.Log("Player Lose! ตดแตกเรียบร้อย");
     }
-
-    /// <summary>
-    /// เรียกฟังก์ชันนี้เพื่อเริ่มเกมใหม่ (เช่นผูกกับปุ่ม Restart)
-    /// </summary>
-    public void RestartGame()
+    private void CalculateThresholds()
     {
-        elapsedTime = 0f;
-        timeSinceLastPress = 0f;
-        gameActive = true;
-        if (statusText != null) statusText.text = "";
+        calculatedThresholds.Clear();
+        for (int i = 0; i < effectPercentages.Count; i++)
+        {
+            calculatedThresholds.Add(maxGauge * (effectPercentages[i] / 100f));
+        }
     }
 }
