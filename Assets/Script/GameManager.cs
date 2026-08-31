@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
+    public PlayerStateOverlay playerOverlay;
+
     [Header("Game Settings")]
     [Tooltip("ค่าอั้นตดสูงสุด")]
     public float maxGauge = 10;
@@ -62,6 +64,7 @@ public class GameManager : MonoBehaviour
     private void ReleaseGauge()
     {
         gaugeNow = Mathf.Max(0f, gaugeNow - gaugeDecreaseAmount);
+        CheckGaugeLevel();
         Debug.Log($"[Release] Gauge Now: {gaugeNow}");
     }
     private void CheckGaugeLevel()
@@ -92,7 +95,9 @@ public class GameManager : MonoBehaviour
             case 1: Debug.Log($"[Level 1: {effectPercentages[0]}%] หน้าเริ่มแดง"); break;
             case 2: Debug.Log($"[Level 2: {effectPercentages[1]}%] ตัวเริ่มสั่น"); break;
             case 3: Debug.Log($"[Level 3: {effectPercentages[2]}%] เสียงหัวใจเต้นเร็ว"); break;
-            case 4: Debug.Log($"[Level 4: {effectPercentages[3]}%] จอกะพริบแดงวิกฤต!"); break;
+            case 4:
+                playerOverlay.SetRed(true);
+                Debug.Log($"[Level 4: {effectPercentages[3]}%] จอกะพริบแดงวิกฤต!"); break;
             case 0: Debug.Log("[Normal] สภาวะปกติ"); break;
             default: Debug.Log($"[Level {level}] ทำงาน!"); break;
         }
@@ -131,6 +136,7 @@ public class GameManager : MonoBehaviour
         gameActive = false;
         StopAllCoroutines();
         // ให้ใส่ effect เวลาที่ player แพ้ทั้งหมดตรงนี้
+        playerOverlay.TriggerLose();
         Debug.Log("Player Lose! ตดแตกเรียบร้อย");
     }
     private void CalculateThresholds()
