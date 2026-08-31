@@ -20,6 +20,7 @@ public class PlayerStateOverlay : MonoBehaviour
     public Image fadeBlackImage;
     public float fadeDuration = 1.0f;
     public GameObject lostPanel;
+    public GameObject winPanel;
 
     private bool hasTriggeredLostSequence = false;
     private Coroutine blinkCoroutine;
@@ -40,6 +41,11 @@ public class PlayerStateOverlay : MonoBehaviour
         if (lostPanel != null)
         {
             lostPanel.SetActive(false);
+        }
+
+        if (winPanel != null)
+        {
+            winPanel.SetActive(false);
         }
     }
 
@@ -77,6 +83,24 @@ public class PlayerStateOverlay : MonoBehaviour
     public void TriggerLose()
     {
         isLost = true;
+    }
+
+    public void TriggerWin()
+    {
+        if (blinkCoroutine != null)
+        {
+            StopCoroutine(blinkCoroutine);
+        }
+
+        if (animator != null)
+        {
+            animator.ResetTrigger("Blink");
+        }
+
+        if (winPanel != null)
+        {
+            winPanel.SetActive(true);
+        }
     }
 
     IEnumerator BlinkRoutine()
