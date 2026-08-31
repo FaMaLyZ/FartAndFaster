@@ -318,7 +318,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &569858926
 Transform:
   m_ObjectHideFlags: 0
@@ -374,10 +374,10 @@ Light:
   serializedVersion: 13
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 162.5
+  m_Intensity: 11.4
   m_Range: 5.8
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
+  m_SpotAngle: 64.64513
+  m_InnerSpotAngle: 56.447243
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
     m_Type: 0
@@ -445,7 +445,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &599655843
 Transform:
   m_ObjectHideFlags: 0
@@ -501,10 +501,10 @@ Light:
   serializedVersion: 13
   m_Type: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 162.5
+  m_Intensity: 11.4
   m_Range: 5.8
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 30
+  m_SpotAngle: 64.64513
+  m_InnerSpotAngle: 56.447243
   m_CookieSize2D: {x: 0.5, y: 0.5}
   m_Shadows:
     m_Type: 0
@@ -853,9 +853,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 569858926}
   - {fileID: 1492374614}
   - {fileID: 1926260510}
+  - {fileID: 569858926}
   - {fileID: 599655843}
   m_Father: {fileID: 1712551393}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -129,6 +129,7 @@ public class GameManager : MonoBehaviour
         gameActive = false;
         StopAllCoroutines();
         // ให้ใส่ effect เวลาที่ player ชนะทั้งหมดตรงนี้
+        AnimationController.Instance.PlayWinAnimation();
         Debug.Log("Player Win!");
     }
     public void PlayerLose()
@@ -136,6 +137,7 @@ public class GameManager : MonoBehaviour
         gameActive = false;
         StopAllCoroutines();
         // ให้ใส่ effect เวลาที่ player แพ้ทั้งหมดตรงนี้
+        AnimationController.Instance.PlayLoseAnimation();
         playerOverlay.TriggerLose();
         Debug.Log("Player Lose! ตดแตกเรียบร้อย");
     }
