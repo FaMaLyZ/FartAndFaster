@@ -124,6 +124,10 @@ public class GameManager : MonoBehaviour
         gameActive = false;
         StopAllCoroutines();
         // ให้ใส่ effect เวลาที่ player ชนะทั้งหมดตรงนี้
+
+        //code นี้คือให้เล่น animation เมื่อ player win
+        AnimationController.Instance?.PlayWinAnimation();
+
         Debug.Log("Player Win!");
     }
     public void PlayerLose()
@@ -131,6 +135,10 @@ public class GameManager : MonoBehaviour
         gameActive = false;
         StopAllCoroutines();
         // ให้ใส่ effect เวลาที่ player แพ้ทั้งหมดตรงนี้
+
+        //code นี้คือให้เล่น animation เมื่อ player lose
+        AnimationController.Instance?.PlayLoseAnimation();
+        
         Debug.Log("Player Lose! ตดแตกเรียบร้อย");
     }
     private void CalculateThresholds()
