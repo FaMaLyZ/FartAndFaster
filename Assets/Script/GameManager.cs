@@ -14,7 +14,11 @@ public class GameManager : MonoBehaviour
     public float gaugeIncreaseAdjust = 0.2f;
     public float maxGaugeIncrease = 3;
     public float gaugeDecreaseAmount = 1;
-    public float winTime = 30;
+
+    [Header("Win Time Setting")]
+    public float minWinTime = 20f;
+    public float maxWinTime = 40f;
+    [SerializeField]private float winTime = 30;
 
     [Header("Threshold Settings")]
     [Tooltip("ใส่เปอร์เซ็นต์ Trigger Effect เรียงจากน้อยไปมาก")]
@@ -28,10 +32,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float gaugeIncreaseNow;
     [SerializeField] private int currentLevel = 0;
 
+    public float CurrentTimer => timer;
+    public bool IsGameActive => gameActive;
+
     private List<float> calculatedThresholds = new List<float>();
 
     private void Start()
     {
+        winTime = Random.Range(minWinTime, maxWinTime);
         gaugeIncreaseNow = startGaugeIncrease;
         CalculateThresholds();
         StartCoroutine(GaugeIncrease());
@@ -149,5 +157,16 @@ public class GameManager : MonoBehaviour
         {
             calculatedThresholds.Add(maxGauge * (effectPercentages[i] / 100f));
         }
+    }
+    public void AddGaugeInstantly(float amount)
+    {
+        gaugeNow = Mathf.Min(maxGauge, gaugeNow + amount);
+        CheckGaugeLevel();
+        Debug.Log($"Gauge instant increase +{amount} | Gauge now: {gaugeNow}");
+    }
+    public void ModifyIncreaseRate(float changeAmount)
+    {
+        gaugeIncreaseNow = Mathf.Max(0f, gaugeIncreaseNow + changeAmount);
+        Debug.Log($"Gauge Increase Now: {gaugeIncreaseNow}");
     }
 }
