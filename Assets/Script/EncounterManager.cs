@@ -30,6 +30,8 @@ public class EncounterManager : MonoBehaviour
 
     [Header("Encounter Settings")]
     public List<EncounterEvent> encounters = new List<EncounterEvent>();
+    public List<GameObject> someOne = new List<GameObject>();
+    [SerializeField]private GameObject currentSomeOne;
 
     private void Awake()
     {
@@ -79,6 +81,7 @@ public class EncounterManager : MonoBehaviour
             case EncounterType.SomeoneComeIn:
                 Debug.Log($"Someone come in Encounter");
                 // มีคนเข้ามาในลิฟต์
+                SelectSomeOneActive();
                 StartCoroutine(AddGaugeInstantRoutine(encounter.value, encounter.duration));
                 break;
 
@@ -106,10 +109,14 @@ public class EncounterManager : MonoBehaviour
     }
     private IEnumerator AddGaugeInstantRoutine(float crampAmount, float duration)
     {
+        gameManager.StartEncounter();
+        AnimationController.Instance.PlayOpenAnimation();
         Debug.Log($"Add Gauge Instant Routine Start");
         gameManager.AddGaugeInstantly(crampAmount);
-
         yield return new WaitForSeconds(duration);
+        AnimationController.Instance.PlayCloseAnimation();
+        yield return new WaitForSeconds(0.5f);
+        gameManager.EndEncounter();
         if (!gameManager.IsGameActive)
         {
             yield break;
@@ -117,5 +124,18 @@ public class EncounterManager : MonoBehaviour
         // เวลาออกทำอะไรบ้างตรงนี้ 
         Debug.Log($"Add Gauge Instant Routine End");
     }
-    
+    void SelectSomeOneActive()
+    {
+        if (someOne == null)
+        {
+            return;
+        }
+        else
+        {
+            int someOneSelected = Random.Range(0,someOne.Count);
+            currentSomeOne = someOne[someOneSelected];
+            currentSomeOne.SetActive(true);
+            someOne.RemoveAt(someOneSelected);
+        }
+    }
 }
