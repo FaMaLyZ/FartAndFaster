@@ -5,6 +5,7 @@ using TMPro;
 public class GameManager : MonoBehaviour
 {
     public PlayerStateOverlay playerOverlay;
+    public SpaceLevelAnim spaceLevelAnim;
 
     [Header("Game Settings")]
     [Tooltip("ค่าอั้นตดสูงสุด")]
@@ -103,6 +104,8 @@ public class GameManager : MonoBehaviour
     }
     private void TriggerGaugeEffect(int level)
     {
+        spaceLevelAnim.SetSpaceLevel(level);
+
         switch (level)
         {
             //ใส่ effect หน้าแดงตาม Percent ของ Gauge ตรงนี้ 
@@ -150,6 +153,7 @@ public class GameManager : MonoBehaviour
         StopAllCoroutines();
         // ให้ใส่ effect เวลาที่ player ชนะทั้งหมดตรงนี้
         playerOverlay.TriggerWin();
+        spaceLevelAnim.SetSpaceLevel(0);
         AnimationController.Instance.PlayWinAnimation();
         Debug.Log("Player Win!");
     }
@@ -160,6 +164,7 @@ public class GameManager : MonoBehaviour
         // ให้ใส่ effect เวลาที่ player แพ้ทั้งหมดตรงนี้
         AnimationController.Instance.PlayCloseAnimation();
         playerOverlay.TriggerLose();
+        spaceLevelAnim.SetSpaceLevel(0);
         Debug.Log("Player Lose! ตดแตกเรียบร้อย");
     }
     private void CalculateThresholds()
