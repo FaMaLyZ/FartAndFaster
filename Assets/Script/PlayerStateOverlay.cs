@@ -16,6 +16,9 @@ public class PlayerStateOverlay : MonoBehaviour
     [Header("Lost State")]
     public bool isLost = false;
 
+    [Header("Lost State")]
+    public bool isWin = false;
+
     [Header("UI & Transition")]
     public Image fadeBlackImage;
     public float fadeDuration = 1.0f;
@@ -55,6 +58,7 @@ public class PlayerStateOverlay : MonoBehaviour
         {
             animator.SetBool("isRed", isRed);
             animator.SetBool("isLost", isLost);
+            animator.SetBool("isWin", isWin);
         }
 
         if (isRed && isLost && !hasTriggeredLostSequence)
@@ -87,6 +91,9 @@ public class PlayerStateOverlay : MonoBehaviour
 
     public void TriggerWin()
     {
+        isWin = true;
+        isRed = false;
+
         if (blinkCoroutine != null)
         {
             StopCoroutine(blinkCoroutine);
@@ -110,7 +117,7 @@ public class PlayerStateOverlay : MonoBehaviour
             float waitTime = Random.Range(minWaitTime, maxWaitTime);
             yield return new WaitForSeconds(waitTime);
 
-            if (!isRed && !isLost && animator != null)
+            if (!isRed && !isLost && !isWin && animator != null)
             {
                 animator.SetTrigger("Blink");
             }
