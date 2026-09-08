@@ -4901,7 +4901,7 @@ MonoBehaviour:
   maxGauge: 100
   gaugeNow: 0
   startGaugeIncrease: 1
-  gaugeIncreaseAdjust: 0.2
+  gaugeIncreaseAdjust: 0.33
   maxGaugeIncrease: 7
   gaugeDecreaseAmount: 1
   minWinTime: 60
@@ -4949,19 +4949,25 @@ MonoBehaviour:
   gameManager: {fileID: 1769527537}
   encounters:
   - eventName: some one come in 1
-    triggerTime: 25
+    triggerTime: 17
     encounterType: 1
     value: 5
     duration: 7
     isTriggered: 0
   - eventName: 'some one come in 2 '
-    triggerTime: 60
+    triggerTime: 34
     encounterType: 1
     value: 5
     duration: 7
     isTriggered: 0
   - eventName: some one come in 3
-    triggerTime: 75
+    triggerTime: 51
+    encounterType: 1
+    value: 5
+    duration: 7
+    isTriggered: 0
+  - eventName: some one come in 3
+    triggerTime: 68
     encounterType: 1
     value: 5
     duration: 7
