@@ -7,8 +7,9 @@ public class AnimationController : MonoBehaviour
     [SerializeField] private Animator animator;
 
     
+    [SerializeField]private static readonly int OpenTriggerHash = Animator.StringToHash("Open");
+    [SerializeField]private static readonly int CloseTriggerHash = Animator.StringToHash("Close");
     [SerializeField]private static readonly int WinTriggerHash = Animator.StringToHash("Win");
-    [SerializeField]private static readonly int LoseTriggerHash = Animator.StringToHash("Lose");
 
     private void Awake()
     {
@@ -25,18 +26,25 @@ public class AnimationController : MonoBehaviour
         }
     }
 
+    public void PlayOpenAnimation()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger(OpenTriggerHash);
+        }
+    }
+    public void PlayCloseAnimation()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger(CloseTriggerHash);
+        }
+    }
     public void PlayWinAnimation()
     {
         if (animator != null)
         {
             animator.SetTrigger(WinTriggerHash);
-        }
-    }
-    public void PlayLoseAnimation()
-    {
-        if (animator != null)
-        {
-            animator.SetTrigger(LoseTriggerHash);
         }
     }
 }
