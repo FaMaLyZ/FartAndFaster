@@ -82,6 +82,12 @@ public class EncounterManager : MonoBehaviour
                 Debug.Log($"Someone come in Encounter");
                 // มีคนเข้ามาในลิฟต์
                 SelectSomeOneActive();
+
+                if (currentSomeOne != null)
+                {
+                    AudioManager.Instance.PlayMonsterSound(currentSomeOne);
+                }
+
                 StartCoroutine(AddGaugeInstantRoutine(encounter.value, encounter.duration));
                 break;
 
@@ -111,12 +117,33 @@ public class EncounterManager : MonoBehaviour
     {
         gameManager.StartEncounter();
         AnimationController.Instance.PlayOpenAnimation();
+
+        AudioManager.Instance.PlayElevatorDing();
+
+        if (currentSomeOne != null && currentSomeOne.name.StartsWith("TopHatHolder"))
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PausePlayerStateSound();
+            }
+        }
+
         Debug.Log($"Add Gauge Instant Routine Start");
         gameManager.AddGaugeInstantly(crampAmount);
         yield return new WaitForSeconds(duration);
         AnimationController.Instance.PlayCloseAnimation();
+
         yield return new WaitForSeconds(0.5f);
         gameManager.EndEncounter();
+
+        if (currentSomeOne != null && currentSomeOne.name.StartsWith("TopHatHolder"))
+        {
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.ResumePlayerStateSound();
+            }
+        }
+
         if (!gameManager.IsGameActive)
         {
             yield break;

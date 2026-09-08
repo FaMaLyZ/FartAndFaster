@@ -50,6 +50,8 @@ public class GameManager : MonoBehaviour
         StartCoroutine(GaugeIncreaseAdjust());
     }
 
+    [Header("Player Sound Control")]
+    private int currentSoundLevel = -1;
     private void Update()
     {
         if (!gameActive || isEncounterActive ) 
@@ -73,6 +75,27 @@ public class GameManager : MonoBehaviour
         {
             PlayerLose();
             return;
+        }
+
+        if (gameActive && maxGauge > 0)
+        {
+            float currentPercentage = (gaugeNow / maxGauge) * 100f;
+            int targetLevel = 0;
+
+            // ตรวจจับ 3 ช่วงตัวเลขแบบเด็ดขาด 
+            if (currentPercentage >= 1f && currentPercentage < 30f) targetLevel = 1;
+            else if (currentPercentage >= 31f && currentPercentage < 70f) targetLevel = 2;
+            else if (currentPercentage >= 71f) targetLevel = 3;
+            else targetLevel = 0; 
+
+            if (targetLevel != currentSoundLevel)
+            {
+                currentSoundLevel = targetLevel;
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayPlayerStateSound(currentSoundLevel);
+                }
+            }
         }
     }
 
@@ -115,8 +138,10 @@ public class GameManager : MonoBehaviour
             case 4:
                 playerOverlay.SetRed(true);
                 Debug.Log($"[Level 4: {effectPercentages[3]}%] จอกะพริบแดงวิกฤต!"); break;
-            case 0: Debug.Log("[Normal] สภาวะปกติ"); break;
-            default: Debug.Log($"[Level {level}] ทำงาน!"); break;
+            case 0: Debug.Log("[Normal] สภาวะปกติ"); 
+                break;
+            default: Debug.Log($"[Level {level}] ทำงาน!");
+                break;
         }
     }
     IEnumerator GaugeIncrease()
@@ -153,7 +178,11 @@ public class GameManager : MonoBehaviour
         StopAllCoroutines();
         // ให้ใส่ effect เวลาที่ player ชนะทั้งหมดตรงนี้
 
-        ElevatorSound.Instance.StopOngoingSound(); //ฟิลเพิ่ม
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopAllSounds();
+            AudioManager.Instance.PlayWinSound();
+        }
 
         playerOverlay.TriggerWin();
         spaceLevelAnim.SetSpaceLevel(0);
@@ -166,7 +195,11 @@ public class GameManager : MonoBehaviour
         StopAllCoroutines();
         // ให้ใส่ effect เวลาที่ player แพ้ทั้งหมดตรงนี้
 
-        ElevatorSound.Instance.StopOngoingSound(); 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopAllSounds();
+            AudioManager.Instance.PlayLoseSound();
+        }
 
         AnimationController.Instance.PlayCloseAnimation();
         playerOverlay.TriggerLose();
