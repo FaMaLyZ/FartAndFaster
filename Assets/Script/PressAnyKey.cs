@@ -10,7 +10,11 @@ public class PressAnyKey : MonoBehaviour
     {
         if (hasPressed) return;
 
-        if (Input.anyKeyDown)
+        // กดคีย์บอร์ดเท่านั้น (ไม่รวม Mouse)
+        if (Input.anyKeyDown &&
+            !Input.GetMouseButtonDown(0) &&
+            !Input.GetMouseButtonDown(1) &&
+            !Input.GetMouseButtonDown(2))
         {
             hasPressed = true;
             sceneLoader.LoadMainGameplay();
