@@ -9,18 +9,18 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: c4e9ebceb3307e147a9a110646dfcbe0
   - enabled: 1
-    path: Assets/Scenes/MainGameplay.unity
-    guid: 95d61a7003d85004e8b0d63d7ba56ce7
-  - enabled: 1
+    path: Assets/Scenes/MainGame.unity
+    guid: 5054592472331344aaa2162807d705d2
+  - enabled: 0
     path: Assets/Scenes/ImmerWork-Pound.unity
     guid: b8ae633856005044a8999c21bb7a0632
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/ImmerWork.unity
     guid: cb170c70977caba4f95dbdb07930bd82
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Pound.unity
     guid: a08e6d707b3ba134494f5f48597bfdc7
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
   m_configObjects:

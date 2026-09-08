@@ -14,7 +14,7 @@ public class SpaceLevelAnim : MonoBehaviour
 
     public void SetSpaceLevel(int level)
     {
-        if (level >= 1 && level <= 4)
+        if (level >= 0 && level <= 4)
         {
             spaceLevelVisual.SetActive(true);
             animator.SetInteger("spaceLevel", level);

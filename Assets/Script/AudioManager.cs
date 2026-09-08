@@ -10,8 +10,9 @@ public class AudioManager : MonoBehaviour
 
     [Header("Audio Sources")]
     public AudioSource audioSource;
-    private AudioSource playerStateSource;
-    private AudioSource playerAdditionalSource;
+    [SerializeField]private AudioSource playerStateSource;
+    [SerializeField]private AudioSource playerAdditionalSource;
+    [SerializeField]private AudioSource audioSourceGameEnd;
 
     [Header("Elevator Settings")]
     public AudioClip elevatorStart;
@@ -113,14 +114,14 @@ public class AudioManager : MonoBehaviour
     {
         if (audioSource != null && winSound != null)
         {
-            audioSource.PlayOneShot(winSound, winVolume);
+            audioSourceGameEnd.PlayOneShot(winSound, winVolume);
         }
     }
     public void PlayLoseSound()
     {
         if (audioSource != null && loseSound != null)
         {
-            audioSource.PlayOneShot(loseSound, loseVolume);
+            audioSourceGameEnd.PlayOneShot(loseSound, loseVolume);
         }
     }
     public void PlayMonsterSound(GameObject activeMonster)

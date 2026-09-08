@@ -28,6 +28,8 @@ public class PlayerStateOverlay : MonoBehaviour
     private bool hasTriggeredLostSequence = false;
     private Coroutine blinkCoroutine;
 
+    [SerializeField]private static readonly int BackToBlink = Animator.StringToHash("BackToBlink");
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -155,5 +157,13 @@ public class PlayerStateOverlay : MonoBehaviour
             lostPanel.SetActive(true);
         }
 
+    }
+    public void BackToBlinkAnimation()
+    {
+        if (animator != null)
+        {
+            animator.SetTrigger(BackToBlink);
+            isRed = false;
+        }
     }
 }

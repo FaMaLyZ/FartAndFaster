@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
 
     public float CurrentTimer => timer;
     public bool IsGameActive => gameActive;
+    [SerializeField]GameObject gaugeUI;
 
     private List<float> calculatedThresholds = new List<float>();
 
@@ -48,12 +49,18 @@ public class GameManager : MonoBehaviour
         CalculateThresholds();
         StartCoroutine(GaugeIncrease());
         StartCoroutine(GaugeIncreaseAdjust());
+        spaceLevelAnim.SetSpaceLevel(currentLevel);
+        gaugeUI.SetActive(true);
     }
 
     [Header("Player Sound Control")]
     private int currentSoundLevel = -1;
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            ReleaseGauge();
+        }
         if (!gameActive || isEncounterActive ) 
         {
             return;
@@ -66,16 +73,13 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            ReleaseGauge();
-        }
-
         if (gaugeNow > maxGauge)
         {
             PlayerLose();
             return;
         }
+        //show text on lift panel
+        liftFloor.text = $"{(int)timer}";
 
         if (gameActive && maxGauge > 0)
         {
@@ -132,13 +136,24 @@ public class GameManager : MonoBehaviour
         switch (level)
         {
             //ใส่ effect หน้าแดงตาม Percent ของ Gauge ตรงนี้ 
-            case 1: Debug.Log($"[Level 1: {effectPercentages[0]}%] หน้าเริ่มแดง"); break;
-            case 2: Debug.Log($"[Level 2: {effectPercentages[1]}%] ตัวเริ่มสั่น"); break;
-            case 3: Debug.Log($"[Level 3: {effectPercentages[2]}%] เสียงหัวใจเต้นเร็ว"); break;
+            case 1: 
+                Debug.Log($"[Level 1: {effectPercentages[0]}%] หน้าเริ่มแดง"); 
+                playerOverlay.BackToBlinkAnimation();
+                break;
+            case 2: 
+                Debug.Log($"[Level 2: {effectPercentages[1]}%] ตัวเริ่มสั่น"); 
+                playerOverlay.BackToBlinkAnimation();
+                break;
+            case 3: 
+                Debug.Log($"[Level 3: {effectPercentages[2]}%] เสียงหัวใจเต้นเร็ว"); 
+                playerOverlay.BackToBlinkAnimation();
+                break;
             case 4:
                 playerOverlay.SetRed(true);
                 Debug.Log($"[Level 4: {effectPercentages[3]}%] จอกะพริบแดงวิกฤต!"); break;
-            case 0: Debug.Log("[Normal] สภาวะปกติ"); 
+            case 0: 
+                Debug.Log("[Normal] สภาวะปกติ"); 
+                playerOverlay.BackToBlinkAnimation();
                 break;
             default: Debug.Log($"[Level {level}] ทำงาน!");
                 break;
@@ -149,14 +164,13 @@ public class GameManager : MonoBehaviour
         print("start GaugeIncrease");
         while (gameActive)
         {
-            liftFloor.text = $"{(int)timer}";
-            yield return new WaitWhile(() => isEncounterActive);
+            
             yield return new WaitForSeconds(1f);
-            yield return new WaitWhile(() => isEncounterActive);
+            
             if (!gameActive) yield break;
             gaugeNow += gaugeIncreaseNow;
             CheckGaugeLevel();
-            Debug.Log($"Gauge Now: {gaugeNow} | Time: {Time.time:F1}s");
+            Debug.Log($"Gauge Now: {gaugeNow} | Time: {timer}s");
             
         }
     }
@@ -169,7 +183,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitWhile(() => isEncounterActive);
             if (!gameActive) yield break;
             gaugeIncreaseNow = Mathf.Min(gaugeIncreaseNow + gaugeIncreaseAdjust, maxGaugeIncrease);
-            Debug.Log($"Gauge Increase Rate: {gaugeIncreaseNow} | Time: {Time.time:F1}s");
+            Debug.Log($"Gauge Increase Rate: {gaugeIncreaseNow} | Time: {timer}s");
         }
     }
     public void PlayerWin()
@@ -183,9 +197,9 @@ public class GameManager : MonoBehaviour
             AudioManager.Instance.StopAllSounds();
             AudioManager.Instance.PlayWinSound();
         }
-
+        gaugeUI.SetActive(false);
         playerOverlay.TriggerWin();
-        spaceLevelAnim.SetSpaceLevel(0);
+        spaceLevelAnim.SetSpaceLevel(-1);
         AnimationController.Instance.PlayWinAnimation();
         Debug.Log("Player Win!");
     }
@@ -200,10 +214,10 @@ public class GameManager : MonoBehaviour
             AudioManager.Instance.StopAllSounds();
             AudioManager.Instance.PlayLoseSound();
         }
-
+        gaugeUI.SetActive(false);
         AnimationController.Instance.PlayCloseAnimation();
         playerOverlay.TriggerLose();
-        spaceLevelAnim.SetSpaceLevel(0);
+        spaceLevelAnim.SetSpaceLevel(-1);
         Debug.Log("Player Lose! ตดแตกเรียบร้อย");
     }
     private void CalculateThresholds()
